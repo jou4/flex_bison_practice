@@ -3,6 +3,12 @@
 #include "y.tab.h"
 #include "lexer.h"
 
+#include "vector.h"
+typedef struct {
+   Vector *exps;
+   int going;
+} ParserState;
+
 #define YY_DECL int yylex \
                (YYSTYPE * yylval_param, yyscan_t yyscanner, StringBuffer *buf)
 
@@ -18,6 +24,7 @@ void _lexer_destroy(Lexer *lexer)
     yylex_destroy(lexer->scanner);
     free(lexer);
 }
+
 %}
 
 %option reentrant
@@ -36,6 +43,15 @@ upper [A-Z]
 %start COMMENT
 
 %%
+
+<INITIAL>"+" { return('+'); }
+<INITIAL>"-" { return('-'); }
+<INITIAL>"*" { return('*'); }
+<INITIAL>"/" { return('/'); }
+
+<INITIAL>"if"   { return(IF); }
+<INITIAL>"then" { return(THEN); }
+<INITIAL>"else" { return(ELSE); }
 
 <INITIAL>{digit}+ {
     yylval->num = atoi(yytext);
@@ -70,12 +86,6 @@ upper [A-Z]
 <STRLIT>{br}   { YY_FATAL_ERROR("unexpected newline in string literal."); BEGIN(INITIAL); }
 <STRLIT>.      { sb_append_n(buf, yytext, yyleng); }
 
-<INITIAL>"+" { return('+'); }
-<INITIAL>"-" { return('-'); }
-<INITIAL>"*" { return('*'); }
-<INITIAL>"/" { return('/'); }
-
-
  /* Comment */
 <INITIAL>\/\/[^\n]+ { }
 <INITIAL>"/*"       { BEGIN(COMMENT); }
@@ -85,7 +95,7 @@ upper [A-Z]
 <COMMENT>.          { }
 
 
-<INITIAL>{br} { }
-<INITIAL>.    { }
+<INITIAL>{space} { }
+<INITIAL>{br} { return(BR); }
 
 %%
