@@ -126,4 +126,6 @@ void lexer_unput_input_buffer(Lexer *lexer)
         }
     }
     free(str);
+
+    lexer_clear_input_buffer(lexer);
 }
