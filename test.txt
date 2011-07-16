@@ -5,4 +5,5 @@
 // comment
 xxx - (yyy * zzz)
 "abc\\nde" + "fgh\nij" - "klmno"
-10 + -
+10 +
+11

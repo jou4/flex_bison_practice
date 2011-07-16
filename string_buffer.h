@@ -12,7 +12,7 @@ typedef struct {
 } StringBuffer;
 
 StringBuffer *sb_new();
-void sb_init(StringBuffer *sb);
+void sb_clear(StringBuffer *sb);
 void _sb_destroy(StringBuffer *sb);
 int sb_append_n(StringBuffer *sb, const char *str, int size);
 char *sb_to_string(StringBuffer *sb);

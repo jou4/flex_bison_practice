@@ -21,11 +21,11 @@ StringBuffer *sb_new()
         return NULL;
     }
 
-    sb_init(sb);
+    sb_clear(sb);
     return sb;
 }
 
-void sb_init(StringBuffer *sb)
+void sb_clear(StringBuffer *sb)
 {
     sb->len = 0;
     sb->buf[0] = '\0';

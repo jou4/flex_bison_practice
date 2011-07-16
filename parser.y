@@ -4,11 +4,11 @@
 #include "vector.h"
 
 #define YYDEBUG 1
-#define YYLEX_PARAM lexer->scanner, lexer->buf
+#define YYLEX_PARAM lexer->scanner, lexer
 
 typedef struct {
-   Vector *exps;
-} ParserState;
+   int mode;
+} Parser;
 
 %}
 
@@ -20,7 +20,7 @@ typedef struct {
 %define api.pure
 %error-verbose
 
-%parse-param { ParserState *ps }
+%parse-param { Parser *ps }
 %parse-param { Lexer *lexer }
 %parse-param { char *stream_name }
 
@@ -53,14 +53,11 @@ input
 :
 | input line
 ;
+
 line
 : BR
-| exp { show($1); YYACCEPT; }
-;
-
-exps
-:
-| exps exp              { /*vector_add(ps->exps, $2);*/show($2); }
+| exp { show($1); lexer_clear_input_buffer(lexer); }
+| error { if(ps->mode == 1){ lexer_unput_input_buffer(lexer); } YYABORT; }
 ;
 
 simple_exp
@@ -81,32 +78,39 @@ exp
 
 %%
 
-int yyerror(ParserState *ps, Lexer *lexer, char *stream_name, char *msg)
+int yyerror(Parser *ps, Lexer *lexer, char *stream_name, char *msg)
 {
-    fprintf(stderr, "%s(%d): %s\n", stream_name, yyget_lineno(lexer->scanner), msg);
+    if(ps->mode == 0){
+        fprintf(stderr, "%s(%d): %s\n", stream_name, yyget_lineno(lexer->scanner), msg);
+    }
     return 0;
 }
 
-void init_state(ParserState *ps){
-    ps->exps = vector_new();
+void init_state(Parser *ps){
+    ps->mode = 0;
 }
 
-void destroy_state(ParserState *ps){
+void destroy_state(Parser *ps){
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    ParserState ps;
+    Parser ps;
     Lexer lexer;
 
-    lexer_init(&lexer);
     init_state(&ps);
+    lexer_init(&lexer);
+
+    if(argc > 1 && strcmp(argv[1], "-i") == 0){
+        ps.mode = 1;   // interactive shell mode
+    }
 
 //yydebug = 1;
-    if(yyparse(&ps, &lexer, "input") == 0){
-        int i;
-        for(i = 0; i < ps.exps->length; i++){
-            show(vector_get(ps.exps, i));
+    if(ps.mode == 0){
+        yyparse(&ps, &lexer, "input");
+    }else{
+        for(;;){
+            yyparse(&ps, &lexer, "input");
         }
     }
 
