@@ -1,7 +1,6 @@
 %{
 
 #include <stdio.h>
-#include "vector.h"
 
 #define YYDEBUG 1
 #define YYLEX_PARAM lexer->scanner, lexer
