@@ -55,7 +55,7 @@ input
 
 line
 : BR
-| exp { show($1); lexer_clear_input_buffer(lexer); }
+| exp BR { show($1); lexer_clear_input_buffer(lexer); }
 | error { if(ps->mode == 1){ lexer_unput_input_buffer(lexer); } YYABORT; }
 ;
 
@@ -72,6 +72,8 @@ exp
 | exp '-' exp           { $$ = expr_sub($1, $3); }
 | exp '*' exp           { $$ = expr_mul($1, $3); }
 | exp '/' exp           { $$ = expr_div($1, $3); }
+| '-' exp
+    %prec NEG           { $2->int_val = -($2->int_val); $$ = $2; }
 | IF simple_exp THEN simple_exp ELSE simple_exp { $$ = $2; }
 ;
 
