@@ -31,6 +31,7 @@ upper [A-Z]
 <INITIAL>"-" { return('-'); }
 <INITIAL>"*" { return('*'); }
 <INITIAL>"/" { return('/'); }
+<INITIAL>"=" { return('='); }
 
 <INITIAL>"if"   { return(IF); }
 <INITIAL>"then" { return(THEN); }

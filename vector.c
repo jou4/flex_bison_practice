@@ -10,6 +10,7 @@ void vector_resize(Vector *vec, int n)
 Vector *vector_new()
 {
     Vector *vec = (Vector *)malloc(sizeof(Vector));
+    vec->blocks = NULL;
     vec->nblocks = 0;
     vec->length = 0;
     return vec;
